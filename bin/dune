@@ -1,0 +1,4 @@
+(executable
+ (public_name mips_assembler)
+ (name main)
+ (libraries mips_assembler))
