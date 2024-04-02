@@ -4,7 +4,7 @@ type t =
     | Illegal
     | Instruction of string
     | Register of string
-    | Immediate of string
+    | Immediate of (int * string)
     | Label of string
     | Comma
     | Newline
@@ -15,7 +15,7 @@ let to_string = function
     | Illegal -> "Illegal"
     | Instruction s -> "Instruction " ^ s
     | Register s -> "Register " ^ s
-    | Immediate s -> "Immediate " ^ s
+    | Immediate (base, s) -> "Immediate " ^ (string_of_int base) ^ " " ^ s
     | Label s -> "Label " ^ s
     | Comma -> "Comma"
     | Newline -> "Newline"

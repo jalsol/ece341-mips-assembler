@@ -36,14 +36,14 @@ let advance lexer =
         let next_ch = String.get lexer.input next_pos in
         { lexer with pos = next_pos; ch = Some next_ch }
 
-let peek lexer =
-    if
-        scan_ended lexer
-    then
-        None
-    else
-        let peeked_ch = String.get lexer.input lexer.pos in
-        Some peeked_ch
+(* let peek lexer = *)
+(*     if *)
+(*         scan_ended lexer *)
+(*     then *)
+(*         None *)
+(*     else *)
+(*         let peeked_ch = String.get lexer.input (lexer.pos + 1) in *)
+(*         Some peeked_ch *)
 
 let seek lexer predicate =
     let rec aux lexer =
@@ -67,13 +67,25 @@ let read_while lexer predicate =
         | None -> false)
     in lexer, String.sub lexer.input pos_start (pos_end - pos_start)
 
-let read_immediate lexer =
-    let lexer, immediate = read_while lexer is_digit in
-    lexer, Token.Immediate immediate
+let read_number lexer =
+    let lexer, number = read_while lexer is_digit in
+    lexer, Token.Immediate (10, number)
+
+let read_number_base lexer =
+    let lexer = advance lexer in
+    let base = match lexer.ch with
+        | Some 'x' -> 16
+        | Some 'b' -> 2
+        | Some 'o' -> 8
+        | _ -> 10
+    in
+    let lexer = advance lexer in
+    let lexer, number = read_while lexer is_digit in
+    lexer, Token.Immediate (base, number)
 
 let read_identifier lexer =
     let lexer, identifier = read_while lexer is_identifier in
-    match peek lexer with
+    match lexer.ch with
     | Some ':' -> advance lexer, Token.Label identifier
     | _ -> lexer, Token.Instruction identifier
 
@@ -95,7 +107,8 @@ let next lexer =
         | '(' -> advance lexer, LeftParen
         | ')' -> advance lexer, RightParen
         | '$' -> read_register (advance lexer)
-        | ch when is_digit ch -> read_immediate lexer
+        | '0' -> read_number_base lexer
+        | ch when is_digit ch -> read_number lexer
         | ch when is_identifier ch -> read_identifier lexer
         | _ -> advance lexer, Illegal
         in lexer, Some(token)
