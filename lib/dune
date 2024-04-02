@@ -1,2 +1,2 @@
 (library
- (name mips_assembler))
+ (name MIPS_asm))
