@@ -1,7 +1,9 @@
 open MIPS_asm
 
 let () =
-    let code = "ldr $r0, 2" in
+    let code = "a:
+ldr $r0, 2
+" in
     let lexer = Lexer.init code in
     let rec loop lexer =
         let next_lexer, token = Lexer.next lexer in

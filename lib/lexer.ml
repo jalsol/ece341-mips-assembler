@@ -34,7 +34,7 @@ let advance lexer =
         { lexer with pos = next_pos; ch = None }
     else
         let next_ch = String.get lexer.input next_pos in
-        { lexer with pos = next_pos; ch = Some(next_ch) }
+        { lexer with pos = next_pos; ch = Some next_ch }
 
 let peek lexer =
     if
@@ -42,8 +42,8 @@ let peek lexer =
     then
         None
     else
-        let peeked_ch = String.get lexer.input (lexer.pos + 1) in
-        Some(peeked_ch)
+        let peeked_ch = String.get lexer.input lexer.pos in
+        Some peeked_ch
 
 let seek lexer predicate =
     let rec aux lexer =
@@ -69,13 +69,13 @@ let read_while lexer predicate =
 
 let read_immediate lexer =
     let lexer, immediate = read_while lexer is_digit in
-    lexer, Token.Immediate (immediate)
+    lexer, Token.Immediate immediate
 
 let read_identifier lexer =
     let lexer, identifier = read_while lexer is_identifier in
     match peek lexer with
-    | Some ':' -> advance lexer, Token.Label (identifier)
-    | _ -> lexer, Token.Instruction (identifier)
+    | Some ':' -> advance lexer, Token.Label identifier
+    | _ -> lexer, Token.Instruction identifier
 
 let read_register lexer =
     let lexer, register = read_while lexer (fun ch -> ch == 'r') in
@@ -85,6 +85,7 @@ let read_register lexer =
 let next lexer =
     let open Token in
     let lexer = skip_whitespace lexer in
+    (* let _ = Printf.printf "pos: %d\n" lexer.pos in *)
     match lexer.ch with
     | None -> lexer, None
     | Some ch ->
