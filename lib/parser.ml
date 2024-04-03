@@ -35,21 +35,21 @@ let print_reg_opcode address ~f ~s ~t ~a ~d =
     let op1 = ((s lsl 5) lor t) land 0xFF in
     let op2 = ((d lsl 3) lor (a lsr 2)) land 0xFF in
     let op3 = ((a lsl 6) lor f) land 0xFF in
-    Printf.printf "%03x: %02x %02x %02x %02x\n" address op0 op1 op2 op3
+    Printf.printf "%03x: %02x %02x %02x %02x" address op0 op1 op2 op3
 
 let print_imm_opcode address ~o ~s ~t ~i =
     let op0 = ((o lsl 2) lor (s lsr 3)) land 0xFF in
     let op1 = ((s lsl 5) lor t) land 0xFF in
     let op2 = (i lsr 8) land 0xFF in
     let op3 = i land 0xFF in
-    Printf.printf "%03x: %02x %02x %02x %02x\n" address op0 op1 op2 op3
+    Printf.printf "%03x: %02x %02x %02x %02x" address op0 op1 op2 op3
 
 let print_jmp_opcode address ~o ~i =
     let op0 = ((o lsl 2) lor (i lsr 26)) land 0xFF in
     let op1 = (i lsr 16) land 0xFF in
     let op2 = (i lsr 8) land 0xFF in
     let op3 = i land 0xFF in
-    Printf.printf "%03x: %02x %02x %02x %02x\n" address op0 op1 op2 op3
+    Printf.printf "%03x: %02x %02x %02x %02x" address op0 op1 op2 op3
 
 let add_instr parser =
     let error_msg = "Invalid syntax: add" in
@@ -64,6 +64,7 @@ let add_instr parser =
         match d_token, s_token, t_token with
         | Some Token.Register d, Some Token.Register s, Some Token.Register t ->
             let _ = print_reg_opcode parser.addr ~f:0b100000 ~s ~t ~d ~a:0 in
+            let _ = Printf.printf " // r%d = r%d + r%d (signed)\n" d s t in
             { parser with lexer; addr = parser.addr + 0x4; }
         | _ -> failwith error_msg)
     | _ -> failwith error_msg
@@ -81,6 +82,7 @@ let addu_instr parser =
         match d_token, s_token, t_token with
         | Some Token.Register d, Some Token.Register s, Some Token.Register t ->
             let _ = print_reg_opcode parser.addr ~f:0b100001 ~d ~s ~t ~a:0 in
+            let _ = Printf.printf " // r%d = r%d + r%d (unsigned)\n" d s t in
             { parser with lexer; addr = parser.addr + 0x4; }
         | _ -> failwith error_msg)
     | _ -> failwith error_msg
@@ -98,6 +100,7 @@ let addi_instr parser =
         match t_token, s_token, i_token with
         | Some Token.Register t, Some Token.Register s, Some Token.Immediate i ->
             let _ = print_imm_opcode parser.addr ~o:0b001000 ~s ~t ~i in
+            let _ = Printf.printf " // r%d = r%d + #%d (signed)\n" t s i in
             { parser with lexer; addr = parser.addr + 0x4; }
         | _ -> failwith error_msg)
     | _ -> failwith error_msg
@@ -115,6 +118,7 @@ let addiu_instr parser =
         match t_token, s_token, i_token with
         | Some Token.Register t, Some Token.Register s, Some Token.Immediate i ->
             let _ = print_imm_opcode parser.addr ~o:0b001001 ~s ~t ~i in
+            let _ = Printf.printf " // r%d = r%d + #%d (unsigned)\n" t s i in
             { parser with lexer; addr = parser.addr + 0x4; }
         | _ -> failwith error_msg)
     | _ -> failwith error_msg
@@ -379,7 +383,7 @@ let sub_instr parser =
         match d_token, s_token, t_token with
         | Some Token.Register d, Some Token.Register s, Some Token.Register t ->
             let _ = print_reg_opcode parser.addr ~f:0b100010 ~s ~t ~d ~a:0 in
-            (* let _ = Printf.printf "%03x: r%d = r%d - r%d (signed)\n" parser.addr d s t in *)
+            let _ = Printf.printf " // r%d = r%d - r%d (signed)\n" d s t in
             { parser with lexer; addr = parser.addr + 0x4; }
         | _ -> failwith error_msg)
     | _ -> failwith error_msg
@@ -446,6 +450,7 @@ let li_instr parser =
         match t_token, i_token with
         | Some Token.Register t, Some Token.Immediate i ->
             let _ = print_imm_opcode parser.addr ~o:0b001001 ~s:0 ~t ~i in
+            let _ = Printf.printf " // r%d = #%d\n" t i in
             { parser with lexer; addr = parser.addr + 0x4; }
         | _ -> failwith error_msg)
     | _ -> failwith error_msg
@@ -547,7 +552,7 @@ let beq_instr parser =
         match s_token, t_token, i_token with
         | Some Token.Register s, Some Token.Register t, Some Token.Immediate i ->
             let _ = print_imm_opcode parser.addr ~o:0b000100 ~s ~t ~i in
-            (* let _ = Printf.printf "%03x: if r%d == r%d then pc += 0x%03x\n" parser.addr s t step in *)
+            let _ = Printf.printf " // if r%d == r%d then pc += #%d\n" s t i in
             { parser with lexer; addr = parser.addr + 0x4; }
         | _ -> failwith error_msg)
     | _ -> failwith error_msg
@@ -561,10 +566,12 @@ let j_instr parser =
         let label_addr = get_label_addr parser label in
         let i = label_addr lsr 2 in
         let _ = print_jmp_opcode parser.addr ~o:0b000010 ~i in
+        let _ = Printf.printf " // j 0x%03x\n" label_addr in
         { parser with lexer; addr = parser.addr + 0x4; })
     | Some Token.Immediate i -> (
         let i = i lsr 2 in
         let _ = print_jmp_opcode parser.addr ~o:0b000010 ~i in
+        let _ = Printf.printf " // j 0x%03x\n" i in
         { parser with lexer; addr = parser.addr + 0x4; })
     | _ -> failwith error_msg
 
