@@ -1,0 +1,39 @@
+li r1, 0x30
+
+li r2, 0x4865
+sh r2, 0(r1)
+
+li r2, 0x6c6c
+sh r2, 2(r1)
+
+li r2, 0x6f20
+sh r2, 4(r1)
+
+li r2, 0x5472
+sh r2, 6(r1)
+
+li r2, 0x756f
+sh r2, 8(r1)
+
+li r2, 0x6e67
+sh r2, 10(r1)
+
+li r2, 0
+sb r2, 12(r1)
+
+li r2, 12
+add r2, r2, r1
+
+li r3, 0x8000
+sll r3, r3, 16
+ori r3, r3, 0x0008
+
+loop:
+beq r1, r2, 4
+lb r4, 0(r1)
+sb r4, 0(r3)
+addi r1, r1, 1
+j loop
+
+li r1, 0xa
+sb r1, 0(r3)
