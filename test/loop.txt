@@ -1,0 +1,7 @@
+li r20, 0x1234
+li r2, 3
+label: add r3, r20, r2
+add r4, r3, r3
+add r5, r4, r4
+addiu r2, r2, 33
+j label

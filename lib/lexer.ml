@@ -78,17 +78,18 @@ let read_number lexer =
 let read_number_base lexer =
     let lexer = advance lexer in
     match lexer.ch with
-    | None -> lexer, Token.Immediate (0)
     | Some 'x' ->
         let base = "x" in
         let lexer = advance lexer in
         let lexer, number = read_while lexer is_hex_digit in
         lexer, Token.Immediate ("0" ^ base ^ number |> int_of_string)
-    | Some ch ->
-        let base = ch |> String.make 1 in
+    | Some 'o'
+    | Some 'b' ->
+        let base = Option.get lexer.ch |> String.make 1 in
         let lexer = advance lexer in
         let lexer, number = read_while lexer is_digit in
         lexer, Token.Immediate ("0" ^ base ^ number |> int_of_string)
+    | _ -> lexer, Token.Immediate (0)
 
 let read_identifier lexer =
     let lexer, identifier = read_while lexer is_identifier in

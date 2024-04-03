@@ -1,0 +1,11 @@
+li r4, 84
+li r5, 12
+li r2, 1
+
+loop:
+beq r4, r5, 3
+sub r4, r4, r5
+addiu r2, r2, 1
+j loop
+
+li r4, 0
