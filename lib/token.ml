@@ -3,8 +3,8 @@
 type t =
     | Illegal
     | Instruction of string
-    | Register of string
-    | Immediate of (int * string)
+    | Register of int
+    | Immediate of int
     | Label of string
     | Comma
     | Newline
@@ -14,8 +14,8 @@ type t =
 let to_string = function
     | Illegal -> "Illegal"
     | Instruction s -> "Instruction " ^ s
-    | Register s -> "Register " ^ s
-    | Immediate (base, s) -> "Immediate " ^ (string_of_int base) ^ " " ^ s
+    | Register i -> "Register " ^ Printf.sprintf "%d" i
+    | Immediate i -> "Immediate " ^ "0x" ^ Printf.sprintf "%x" i
     | Label s -> "Label " ^ s
     | Comma -> "Comma"
     | Newline -> "Newline"

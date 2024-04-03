@@ -69,19 +69,14 @@ let read_while lexer predicate =
 
 let read_number lexer =
     let lexer, number = read_while lexer is_digit in
-    lexer, Token.Immediate (10, number)
+    lexer, Token.Immediate (int_of_string number)
 
 let read_number_base lexer =
     let lexer = advance lexer in
-    let base = match lexer.ch with
-        | Some 'x' -> 16
-        | Some 'b' -> 2
-        | Some 'o' -> 8
-        | _ -> 10
-    in
+    let base = Option.get lexer.ch |> String.make 1 in
     let lexer = advance lexer in
     let lexer, number = read_while lexer is_digit in
-    lexer, Token.Immediate (base, number)
+    lexer, Token.Immediate ("0" ^ base ^ number |> int_of_string)
 
 let read_identifier lexer =
     let lexer, identifier = read_while lexer is_identifier in
@@ -90,9 +85,9 @@ let read_identifier lexer =
     | _ -> lexer, Token.Instruction identifier
 
 let read_register lexer =
-    let lexer, register = read_while lexer (fun ch -> ch == 'r') in
+    let lexer, _ = read_while lexer (fun ch -> ch == 'r') in
     let lexer, number = read_while lexer is_digit in
-    lexer, Token.Register (register ^ number)
+    lexer, Token.Register (int_of_string number)
 
 let next lexer =
     let open Token in
