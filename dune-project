@@ -1,19 +1,19 @@
 (lang dune 3.14)
 
-(name mips_assembler)
+(name jalmas)
 
 (generate_opam_files true)
 
 (source
- (github jalsol/mips_assembler))
+ (github jalsol/jalmas))
 
 (authors "Quang-Truong Nguyen")
 
 (maintainers "Quang-Truong Nguyen")
 
 (package
- (name mips_assembler)
- (synopsis "MIPS Assembler")
+ (name jalmas)
+ (synopsis "jalmas - just a little mips assembler")
  (description "An MIPS Assembler for the ECE343 lab project.")
  (depends ocaml dune))
 

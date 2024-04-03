@@ -1,4 +1,4 @@
 (executable
- (public_name mips_assembler)
+ (public_name jalmas)
  (name main)
- (libraries MIPS_asm fmt))
+ (libraries jalmas fmt))

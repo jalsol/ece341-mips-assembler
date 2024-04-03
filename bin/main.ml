@@ -1,4 +1,4 @@
-open MIPS_asm
+open Jalmas
 
 let code =
     let rec read_lines () =

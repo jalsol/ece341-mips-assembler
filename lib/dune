@@ -1,2 +1,2 @@
 (library
- (name MIPS_asm))
+ (name jalmas))
