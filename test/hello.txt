@@ -1,0 +1,22 @@
+li r1, 0x30
+
+li r2, 0x4865
+sh r2, 0(r1)
+
+li r2, 0x6c6c
+sh r2, 2(r1)
+
+li r2, 0x6f20
+sh r2, 4(r1)
+
+li r2, 0x5472
+sh r2, 6(r1)
+
+li r2, 0x756f
+sh r2, 8(r1)
+
+li r2, 0x6e67
+sh r2, 10(r1)
+
+li r2, 0
+sb r2, 12(r1)
