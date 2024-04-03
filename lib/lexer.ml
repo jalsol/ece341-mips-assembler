@@ -18,6 +18,10 @@ let is_digit ch = match ch with
     | '0' .. '9' -> true
     | _ -> false
 
+let is_hex_digit ch = is_digit ch || (match ch with
+    | 'A' .. 'F' | 'a' .. 'f' -> true
+    | _ -> false)
+
 let is_whitespace ch = match ch with
     | ' ' | '\t' -> true
     | _ -> false
@@ -73,10 +77,18 @@ let read_number lexer =
 
 let read_number_base lexer =
     let lexer = advance lexer in
-    let base = Option.get lexer.ch |> String.make 1 in
-    let lexer = advance lexer in
-    let lexer, number = read_while lexer is_digit in
-    lexer, Token.Immediate ("0" ^ base ^ number |> int_of_string)
+    match lexer.ch with
+    | None -> lexer, Token.Immediate (0)
+    | Some 'x' ->
+        let base = "x" in
+        let lexer = advance lexer in
+        let lexer, number = read_while lexer is_hex_digit in
+        lexer, Token.Immediate ("0" ^ base ^ number |> int_of_string)
+    | Some ch ->
+        let base = ch |> String.make 1 in
+        let lexer = advance lexer in
+        let lexer, number = read_while lexer is_digit in
+        lexer, Token.Immediate ("0" ^ base ^ number |> int_of_string)
 
 let read_identifier lexer =
     let lexer, identifier = read_while lexer is_identifier in
@@ -85,7 +97,6 @@ let read_identifier lexer =
     | _ -> lexer, Token.Instruction identifier
 
 let read_register lexer =
-    let lexer, _ = read_while lexer (fun ch -> ch == 'r') in
     let lexer, number = read_while lexer is_digit in
     lexer, Token.Register (int_of_string number)
 
@@ -101,7 +112,7 @@ let next lexer =
         | '\n' -> advance lexer, Newline
         | '(' -> advance lexer, LeftParen
         | ')' -> advance lexer, RightParen
-        | '$' -> read_register (advance lexer)
+        | 'r' -> read_register (advance lexer)
         | '0' -> read_number_base lexer
         | ch when is_digit ch -> read_number lexer
         | ch when is_identifier ch -> read_identifier lexer
